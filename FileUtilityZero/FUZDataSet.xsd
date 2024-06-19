@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="FUZDataSet" targetNamespace="http://tempuri.org/FUZDataSet.xsd" xmlns:mstns="http://tempuri.org/FUZDataSet.xsd" xmlns="http://tempuri.org/FUZDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="FUZDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_UserDSName="FUZDataSet" msprop:Generator_DataSetName="FUZDataSet">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="dtFUZ" msprop:Generator_RowEvHandlerName="dtFUZRowChangeEventHandler" msprop:Generator_RowDeletedName="dtFUZRowDeleted" msprop:Generator_RowDeletingName="dtFUZRowDeleting" msprop:Generator_RowEvArgName="dtFUZRowChangeEvent" msprop:Generator_TablePropName="dtFUZ" msprop:Generator_RowChangedName="dtFUZRowChanged" msprop:Generator_RowChangingName="dtFUZRowChanging" msprop:Generator_TableClassName="dtFUZDataTable" msprop:Generator_RowClassName="dtFUZRow" msprop:Generator_TableVarName="tabledtFUZ" msprop:Generator_UserTableName="dtFUZ">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="FileName" msprop:Generator_ColumnPropNameInRow="FileName" msprop:Generator_ColumnPropNameInTable="FileNameColumn" msprop:Generator_ColumnVarNameInTable="columnFileName" msprop:Generator_UserColumnName="FileName" type="xs:string" minOccurs="0" />
+              <xs:element name="FilePath" msprop:Generator_ColumnPropNameInRow="FilePath" msprop:Generator_ColumnPropNameInTable="FilePathColumn" msprop:Generator_ColumnVarNameInTable="columnFilePath" msprop:Generator_UserColumnName="FilePath" type="xs:string" minOccurs="0" />
+              <xs:element name="FileSize" msprop:Generator_ColumnPropNameInRow="FileSize" msprop:Generator_ColumnPropNameInTable="FileSizeColumn" msprop:Generator_ColumnVarNameInTable="columnFileSize" msprop:Generator_UserColumnName="FileSize" type="xs:string" minOccurs="0" />
+              <xs:element name="CreationTime" msprop:Generator_ColumnPropNameInRow="CreationTime" msprop:Generator_ColumnPropNameInTable="CreationTimeColumn" msprop:Generator_ColumnVarNameInTable="columnCreationTime" msprop:Generator_UserColumnName="CreationTime" type="xs:string" minOccurs="0" />
+              <xs:element name="LastWriteTime" msprop:Generator_ColumnPropNameInRow="LastWriteTime" msprop:Generator_ColumnPropNameInTable="LastWriteTimeColumn" msprop:Generator_ColumnVarNameInTable="columnLastWriteTime" msprop:Generator_UserColumnName="LastWriteTime" type="xs:string" minOccurs="0" />
+              <xs:element name="LastAccessTime" msprop:Generator_ColumnPropNameInRow="LastAccessTime" msprop:Generator_ColumnPropNameInTable="LastAccessTimeColumn" msprop:Generator_ColumnVarNameInTable="columnLastAccessTime" msprop:Generator_UserColumnName="LastAccessTime" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
