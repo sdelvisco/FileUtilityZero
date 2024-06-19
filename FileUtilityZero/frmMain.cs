@@ -120,11 +120,11 @@ namespace FileUtilityZero
                     StatusTick();
 
                     treeView1.Nodes.Add("File Name: " + file_Info.FileName);
-                    treeView1.Nodes[treeView1.Nodes.Count - 1].Nodes.Add("File Path: " + file_Info.FilePath);
-                    treeView1.Nodes[treeView1.Nodes.Count - 1].Nodes.Add("File Size: " + file_Info.FileSize);
-                    treeView1.Nodes[treeView1.Nodes.Count - 1].Nodes.Add("Creation Time: " + file_Info.CreationTime);
-                    treeView1.Nodes[treeView1.Nodes.Count - 1].Nodes.Add("Last Write Time: " + file_Info.LastWriteTime);
-                    treeView1.Nodes[treeView1.Nodes.Count - 1].Nodes.Add("Last Access Time: " + file_Info.LastAccessTime);
+                    treeView1.Nodes[^1].Nodes.Add("File Path: " + file_Info.FilePath);
+                    treeView1.Nodes[^1].Nodes.Add("File Size: " + file_Info.FileSize);
+                    treeView1.Nodes[^1].Nodes.Add("Creation Time: " + file_Info.CreationTime);
+                    treeView1.Nodes[^1].Nodes.Add("Last Write Time: " + file_Info.LastWriteTime);
+                    treeView1.Nodes[^1].Nodes.Add("Last Access Time: " + file_Info.LastAccessTime);
                 }
 
                 btnExport.Enabled = true;
