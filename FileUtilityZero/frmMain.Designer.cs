@@ -41,6 +41,8 @@ namespace FileUtilityZero
             lblStatus = new Label();
             btnExport = new Button();
             btnView = new Button();
+            lblFileCount = new Label();
+            lblFileTotal = new Label();
             SuspendLayout();
             // 
             // btnBrowse
@@ -103,7 +105,7 @@ namespace FileUtilityZero
             // 
             treeView1.Location = new Point(12, 12);
             treeView1.Name = "treeView1";
-            treeView1.Size = new Size(1160, 407);
+            treeView1.Size = new Size(1160, 389);
             treeView1.TabIndex = 6;
             // 
             // lblStatus
@@ -135,11 +137,31 @@ namespace FileUtilityZero
             btnView.UseVisualStyleBackColor = true;
             btnView.Click += BtnView_Click_1;
             // 
+            // lblFileCount
+            // 
+            lblFileCount.AutoSize = true;
+            lblFileCount.Location = new Point(12, 404);
+            lblFileCount.Name = "lblFileCount";
+            lblFileCount.Size = new Size(148, 15);
+            lblFileCount.TabIndex = 11;
+            lblFileCount.Text = "Number of files scanned: 0";
+            // 
+            // lblFileTotal
+            // 
+            lblFileTotal.AutoSize = true;
+            lblFileTotal.Location = new Point(305, 404);
+            lblFileTotal.Name = "lblFileTotal";
+            lblFileTotal.Size = new Size(167, 15);
+            lblFileTotal.TabIndex = 12;
+            lblFileTotal.Text = "Total number of files in path: 0";
+            // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1184, 761);
+            Controls.Add(lblFileTotal);
+            Controls.Add(lblFileCount);
             Controls.Add(btnView);
             Controls.Add(btnExport);
             Controls.Add(lblStatus);
@@ -168,6 +190,8 @@ namespace FileUtilityZero
         private TreeView treeView1;
         private Button btnExport;
         private Button btnView;
+        private Label lblFileCount;
+        private Label lblFileTotal;
         public static Label lblStatus;
     }
 }

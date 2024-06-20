@@ -18,6 +18,8 @@ namespace FileUtilityZero
 
         private FileAccess FileInfo = new();
 
+        public static int FileCount = 0;
+
         public FrmMain()
         {
             InitializeComponent();
@@ -78,6 +80,7 @@ namespace FileUtilityZero
             {
                 WorkingPath = folderBrowserDialog1.SelectedPath;
                 txtWorkingPath.Text = WorkingPath;
+                btnBrowse.Enabled = false;
             }
         }
 
@@ -92,8 +95,14 @@ namespace FileUtilityZero
                 return;
             }
 
+            txtOutput.Clear();
+            txtOutput.AppendText("Scanning files in the Working Path. This will take some time if there are a large number of files to be scanned." + Environment.NewLine);
+
+            // TODO: Need to put FileAccess.GetAllFiles() in a thread so it doesn't seem like the application stops responding
+            //
             // Get all files last access info
             int result = FileAccess.GetFiles(WorkingPath);
+            lblFileTotal.Text = "Total number of files: " + result.ToString();
 
             // Display the file access info
             if (result > 0)
@@ -113,6 +122,9 @@ namespace FileUtilityZero
                     string currentFileInfo = ($"File Name: {file_Info.FileName}, File Path: {file_Info.FilePath}, " +
                         $"File Size: {file_Info.FileSize}, Creation Time: {file_Info.CreationTime}, " +
                         $"Last Write Time: {file_Info.LastWriteTime}, Last Access Time: {file_Info.LastAccessTime}");
+
+                    FileCount++;
+                    lblFileCount.Text = "Number of files scanned: " + FileCount.ToString();
 
                     txtOutput.AppendText(currentFileInfo + Environment.NewLine);
                     Logger.Log(currentFileInfo);
@@ -152,8 +164,19 @@ namespace FileUtilityZero
 
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            FileAccess.ExportDataTableToCSV(FileAccess.filesDT, FrmMain.FUZDirectory + @"\files.csv");
-            btnView.Enabled = true;
+            string CSVFilePath = FUZDirectory + @"\files.csv";
+
+            try
+            {
+                FileAccess.ExportDataTableToCSV(FileAccess.filesDT, CSVFilePath);
+                btnView.Enabled = true;
+                btnExport.Enabled = false;
+                MessageBox.Show("The data has been exported to " + CSVFilePath, "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"An error occurred while exporting the data to CSV: {ex.Message}");
+            }
         }
 
         private void BtnView_Click_1(object sender, EventArgs e)
