@@ -126,7 +126,7 @@ namespace FileUtilityZero
                     lblFileCount.Text = "Number of files scanned: " + FileCount.ToString();
 
                     txtOutput.Text = (currentFileInfo);
-                    Logger.Log(currentFileInfo);
+                    //Logger.Log(currentFileInfo);
 
                     StatusTick();
 
