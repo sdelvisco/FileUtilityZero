@@ -95,11 +95,10 @@ namespace FileUtilityZero
                 return;
             }
 
-            txtOutput.Clear();
-            txtOutput.AppendText("Scanning files in the Working Path. This will take some time if there are a large number of files to be scanned." + Environment.NewLine);
+            btnRun.Enabled = false;
 
-            // TODO: Need to put FileAccess.GetAllFiles() in a thread so it doesn't seem like the application stops responding
-            //
+            txtOutput.Text = ("Scanning files in the Working Path. This will take some time if there are a large number of files to be scanned.");
+
             // Get all files last access info
             int result = FileAccess.GetFiles(WorkingPath);
             lblFileTotal.Text = "Total number of files: " + result.ToString();
@@ -126,7 +125,7 @@ namespace FileUtilityZero
                     FileCount++;
                     lblFileCount.Text = "Number of files scanned: " + FileCount.ToString();
 
-                    txtOutput.AppendText(currentFileInfo + Environment.NewLine);
+                    txtOutput.Text = (currentFileInfo);
                     Logger.Log(currentFileInfo);
 
                     StatusTick();
@@ -140,12 +139,12 @@ namespace FileUtilityZero
                 }
 
                 btnExport.Enabled = true;
-                btnRun.Enabled = false;
-                lblStatus.Text = "Status: idle";
+                lblStatus.Text = "Status: Scanning complete.";
+                txtOutput.Text = ("Scanning complete.");
             }
             else
             {
-                txtOutput.AppendText("No files found in the Working Path." + Environment.NewLine);
+                txtOutput.Text = ("No files found in the Working Path.");
                 Logger.Log("No files found in the Working Path.");
                 lblStatus.Text = "Status: idle";
             }

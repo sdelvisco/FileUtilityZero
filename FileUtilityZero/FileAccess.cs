@@ -19,7 +19,9 @@ namespace FileUtilityZero
                 filesDT = CreateFilesDataTable();
                 filesDS.Tables.Add(filesDT);
 
-                ScanDirectory(rootDirectory, filesDT);
+                Thread thread = new(() => ScanDirectory(rootDirectory, filesDT));
+                thread.Start();
+                thread.Join();
 
                 return filesDT.Rows.Count;
             }

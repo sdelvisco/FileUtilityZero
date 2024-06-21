@@ -35,7 +35,6 @@ namespace FileUtilityZero
             btnExit = new Button();
             txtWorkingPath = new TextBox();
             label1 = new Label();
-            txtOutput = new TextBox();
             folderBrowserDialog1 = new FolderBrowserDialog();
             treeView1 = new TreeView();
             lblStatus = new Label();
@@ -43,6 +42,7 @@ namespace FileUtilityZero
             btnView = new Button();
             lblFileCount = new Label();
             lblFileTotal = new Label();
+            txtOutput = new Label();
             SuspendLayout();
             // 
             // btnBrowse
@@ -92,20 +92,11 @@ namespace FileUtilityZero
             label1.Text = "Working Path:";
             label1.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // txtOutput
-            // 
-            txtOutput.Location = new Point(12, 425);
-            txtOutput.Multiline = true;
-            txtOutput.Name = "txtOutput";
-            txtOutput.ScrollBars = ScrollBars.Both;
-            txtOutput.Size = new Size(1160, 295);
-            txtOutput.TabIndex = 5;
-            // 
             // treeView1
             // 
             treeView1.Location = new Point(12, 12);
             treeView1.Name = "treeView1";
-            treeView1.Size = new Size(1160, 389);
+            treeView1.Size = new Size(1160, 627);
             treeView1.TabIndex = 6;
             // 
             // lblStatus
@@ -140,7 +131,7 @@ namespace FileUtilityZero
             // lblFileCount
             // 
             lblFileCount.AutoSize = true;
-            lblFileCount.Location = new Point(12, 404);
+            lblFileCount.Location = new Point(12, 699);
             lblFileCount.Name = "lblFileCount";
             lblFileCount.Size = new Size(148, 15);
             lblFileCount.TabIndex = 11;
@@ -149,24 +140,33 @@ namespace FileUtilityZero
             // lblFileTotal
             // 
             lblFileTotal.AutoSize = true;
-            lblFileTotal.Location = new Point(305, 404);
+            lblFileTotal.Location = new Point(305, 699);
             lblFileTotal.Name = "lblFileTotal";
             lblFileTotal.Size = new Size(167, 15);
             lblFileTotal.TabIndex = 12;
             lblFileTotal.Text = "Total number of files in path: 0";
+            // 
+            // txtOutput
+            // 
+            txtOutput.Location = new Point(12, 642);
+            txtOutput.Name = "txtOutput";
+            txtOutput.Size = new Size(1160, 47);
+            txtOutput.TabIndex = 13;
+            txtOutput.Text = "Idle...";
+            txtOutput.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // FrmMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1184, 761);
+            Controls.Add(txtOutput);
             Controls.Add(lblFileTotal);
             Controls.Add(lblFileCount);
             Controls.Add(btnView);
             Controls.Add(btnExport);
             Controls.Add(lblStatus);
             Controls.Add(treeView1);
-            Controls.Add(txtOutput);
             Controls.Add(label1);
             Controls.Add(txtWorkingPath);
             Controls.Add(btnExit);
@@ -185,13 +185,13 @@ namespace FileUtilityZero
         private Button btnExit;
         private TextBox txtWorkingPath;
         private Label label1;
-        private TextBox txtOutput;
         private FolderBrowserDialog folderBrowserDialog1;
         private TreeView treeView1;
         private Button btnExport;
         private Button btnView;
         private Label lblFileCount;
         private Label lblFileTotal;
+        private Label txtOutput;
         public static Label lblStatus;
     }
 }
