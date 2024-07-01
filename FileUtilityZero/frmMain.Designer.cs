@@ -36,10 +36,8 @@ namespace FileUtilityZero
             txtWorkingPath = new TextBox();
             label1 = new Label();
             folderBrowserDialog1 = new FolderBrowserDialog();
-            treeView1 = new TreeView();
             lblStatus = new Label();
             btnExport = new Button();
-            btnView = new Button();
             lblFileCount = new Label();
             lblFileTotal = new Label();
             txtOutput = new Label();
@@ -47,7 +45,7 @@ namespace FileUtilityZero
             // 
             // btnBrowse
             // 
-            btnBrowse.Location = new Point(766, 726);
+            btnBrowse.Location = new Point(772, 147);
             btnBrowse.Name = "btnBrowse";
             btnBrowse.Size = new Size(75, 23);
             btnBrowse.TabIndex = 0;
@@ -57,7 +55,7 @@ namespace FileUtilityZero
             // 
             // btnRun
             // 
-            btnRun.Location = new Point(1016, 726);
+            btnRun.Location = new Point(610, 176);
             btnRun.Name = "btnRun";
             btnRun.Size = new Size(75, 23);
             btnRun.TabIndex = 1;
@@ -67,7 +65,7 @@ namespace FileUtilityZero
             // 
             // btnExit
             // 
-            btnExit.Location = new Point(1097, 726);
+            btnExit.Location = new Point(772, 176);
             btnExit.Name = "btnExit";
             btnExit.Size = new Size(75, 23);
             btnExit.TabIndex = 2;
@@ -77,7 +75,7 @@ namespace FileUtilityZero
             // 
             // txtWorkingPath
             // 
-            txtWorkingPath.Location = new Point(305, 726);
+            txtWorkingPath.Location = new Point(311, 147);
             txtWorkingPath.Name = "txtWorkingPath";
             txtWorkingPath.Size = new Size(455, 23);
             txtWorkingPath.TabIndex = 3;
@@ -85,24 +83,17 @@ namespace FileUtilityZero
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(217, 730);
+            label1.Location = new Point(223, 151);
             label1.Name = "label1";
             label1.Size = new Size(82, 15);
             label1.TabIndex = 4;
             label1.Text = "Working Path:";
             label1.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // treeView1
-            // 
-            treeView1.Location = new Point(12, 12);
-            treeView1.Name = "treeView1";
-            treeView1.Size = new Size(1160, 627);
-            treeView1.TabIndex = 6;
-            // 
             // lblStatus
             // 
             lblStatus.AutoSize = true;
-            lblStatus.Location = new Point(12, 730);
+            lblStatus.Location = new Point(18, 151);
             lblStatus.Name = "lblStatus";
             lblStatus.Size = new Size(64, 15);
             lblStatus.TabIndex = 8;
@@ -110,7 +101,7 @@ namespace FileUtilityZero
             // 
             // btnExport
             // 
-            btnExport.Location = new Point(854, 726);
+            btnExport.Location = new Point(691, 176);
             btnExport.Name = "btnExport";
             btnExport.Size = new Size(75, 23);
             btnExport.TabIndex = 9;
@@ -118,20 +109,10 @@ namespace FileUtilityZero
             btnExport.UseVisualStyleBackColor = true;
             btnExport.Click += BtnExport_Click;
             // 
-            // btnView
-            // 
-            btnView.Location = new Point(935, 726);
-            btnView.Name = "btnView";
-            btnView.Size = new Size(75, 23);
-            btnView.TabIndex = 10;
-            btnView.Text = "View Data";
-            btnView.UseVisualStyleBackColor = true;
-            btnView.Click += BtnView_Click_1;
-            // 
             // lblFileCount
             // 
             lblFileCount.AutoSize = true;
-            lblFileCount.Location = new Point(12, 699);
+            lblFileCount.Location = new Point(18, 120);
             lblFileCount.Name = "lblFileCount";
             lblFileCount.Size = new Size(148, 15);
             lblFileCount.TabIndex = 11;
@@ -140,7 +121,7 @@ namespace FileUtilityZero
             // lblFileTotal
             // 
             lblFileTotal.AutoSize = true;
-            lblFileTotal.Location = new Point(305, 699);
+            lblFileTotal.Location = new Point(311, 120);
             lblFileTotal.Name = "lblFileTotal";
             lblFileTotal.Size = new Size(167, 15);
             lblFileTotal.TabIndex = 12;
@@ -148,9 +129,9 @@ namespace FileUtilityZero
             // 
             // txtOutput
             // 
-            txtOutput.Location = new Point(12, 642);
+            txtOutput.Location = new Point(12, 2);
             txtOutput.Name = "txtOutput";
-            txtOutput.Size = new Size(1160, 47);
+            txtOutput.Size = new Size(835, 118);
             txtOutput.TabIndex = 13;
             txtOutput.Text = "Idle...";
             txtOutput.TextAlign = ContentAlignment.MiddleLeft;
@@ -159,14 +140,12 @@ namespace FileUtilityZero
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1184, 761);
+            ClientSize = new Size(859, 211);
             Controls.Add(txtOutput);
             Controls.Add(lblFileTotal);
             Controls.Add(lblFileCount);
-            Controls.Add(btnView);
             Controls.Add(btnExport);
             Controls.Add(lblStatus);
-            Controls.Add(treeView1);
             Controls.Add(label1);
             Controls.Add(txtWorkingPath);
             Controls.Add(btnExit);
@@ -186,9 +165,7 @@ namespace FileUtilityZero
         private TextBox txtWorkingPath;
         private Label label1;
         private FolderBrowserDialog folderBrowserDialog1;
-        private TreeView treeView1;
         private Button btnExport;
-        private Button btnView;
         private Label lblFileCount;
         private Label lblFileTotal;
         private Label txtOutput;
