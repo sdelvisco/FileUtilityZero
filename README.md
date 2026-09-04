@@ -1,7 +1,5 @@
 # FileUtilityZero
 
-# FileUtilityZero
-
 A Windows desktop utility that recursively scans a folder and all of its
 subfolders, collecting file metadata for every file found, and exports the
 results to CSV.
