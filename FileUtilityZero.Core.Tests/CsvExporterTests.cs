@@ -102,6 +102,59 @@ public class CsvExporterTests
     }
 
     [Fact]
+    public void BuildLine_ForFileScanResult_WithHashAndCategoryNull_RendersBlankCellsNotOmittedColumns()
+    {
+        // A scan run with default ScanOptions (no hashing/categorizing) still
+        // has to produce a row with all twelve columns - FileHash/Category
+        // just render as blank cells rather than being left out.
+        FileScanResult result = new(
+            "a.cpp",
+            "C:\\root\\a.cpp",
+            100,
+            new DateTime(2024, 1, 1),
+            new DateTime(2024, 1, 2),
+            new DateTime(2024, 1, 3),
+            Extension: ".cpp",
+            Attributes: FileAttributes.ReadOnly,
+            IsReadOnly: true,
+            DirectoryName: "C:\\root");
+
+        string actual = _exporter.BuildLine(result);
+        string[] fields = actual.Split(',');
+
+        Assert.Equal(12, fields.Length);
+        Assert.EndsWith(",\"\",\"\"", actual);
+    }
+
+    [Fact]
+    public void BuildLine_ForFileScanResult_WithHashAndCategorySet_IncludesBothValues()
+    {
+        FileScanResult result = new(
+            "a.cpp",
+            "C:\\root\\a.cpp",
+            100,
+            new DateTime(2024, 1, 1),
+            new DateTime(2024, 1, 2),
+            new DateTime(2024, 1, 3),
+            Extension: ".cpp",
+            Attributes: FileAttributes.ReadOnly,
+            IsReadOnly: true,
+            DirectoryName: "C:\\root",
+            FileHash: "deadbeef",
+            Category: "Code");
+
+        string actual = _exporter.BuildLine(result);
+
+        Assert.Contains("\".cpp\"", actual);
+        Assert.Contains("\"ReadOnly\"", actual);
+        Assert.Contains("\"True\"", actual);
+        Assert.Contains("\"C:\\root\"", actual);
+        Assert.Contains("\"deadbeef\"", actual);
+        Assert.Contains("\"Code\"", actual);
+        Assert.EndsWith("\"deadbeef\",\"Code\"", actual);
+    }
+
+    [Fact]
     public void Export_WritesHeaderAndRowsToFile()
     {
         List<FileScanResult> results = new()
