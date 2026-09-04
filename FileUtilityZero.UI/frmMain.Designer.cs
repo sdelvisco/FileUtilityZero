@@ -41,6 +41,8 @@ namespace FileUtilityZero
             lblFileCount = new Label();
             lblFileTotal = new Label();
             txtOutput = new Label();
+            chkIncludeHash = new CheckBox();
+            chkIncludeCategory = new CheckBox();
             SuspendLayout();
             // 
             // btnBrowse
@@ -135,12 +137,36 @@ namespace FileUtilityZero
             txtOutput.TabIndex = 13;
             txtOutput.Text = "Idle...";
             txtOutput.TextAlign = ContentAlignment.MiddleLeft;
-            // 
+            //
+            // chkIncludeHash
+            //
+            chkIncludeHash.AutoSize = true;
+            chkIncludeHash.Checked = false;
+            chkIncludeHash.Location = new Point(18, 205);
+            chkIncludeHash.Name = "chkIncludeHash";
+            chkIncludeHash.Size = new Size(180, 19);
+            chkIncludeHash.TabIndex = 14;
+            chkIncludeHash.Text = "Include file hash (SHA-256)";
+            chkIncludeHash.UseVisualStyleBackColor = true;
+            //
+            // chkIncludeCategory
+            //
+            chkIncludeCategory.AutoSize = true;
+            chkIncludeCategory.Checked = false;
+            chkIncludeCategory.Location = new Point(250, 205);
+            chkIncludeCategory.Name = "chkIncludeCategory";
+            chkIncludeCategory.Size = new Size(140, 19);
+            chkIncludeCategory.TabIndex = 15;
+            chkIncludeCategory.Text = "Include file category";
+            chkIncludeCategory.UseVisualStyleBackColor = true;
+            //
             // FrmMain
-            // 
+            //
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(859, 211);
+            ClientSize = new Size(859, 241);
+            Controls.Add(chkIncludeCategory);
+            Controls.Add(chkIncludeHash);
             Controls.Add(txtOutput);
             Controls.Add(lblFileTotal);
             Controls.Add(lblFileCount);
@@ -170,5 +196,7 @@ namespace FileUtilityZero
         private Label lblFileTotal;
         private Label txtOutput;
         private Label lblStatus;
+        private CheckBox chkIncludeHash;
+        private CheckBox chkIncludeCategory;
     }
 }

@@ -1,3 +1,4 @@
+using System.Text;
 using FileUtilityZero.Core.Tests.TestDoubles;
 
 namespace FileUtilityZero.Core.Tests;
@@ -90,5 +91,94 @@ public class FileScannerTests
 
         Assert.Empty(results);
         Assert.Single(logger.Messages);
+    }
+
+    [Fact]
+    public void Scan_PopulatesAlwaysIncludedFieldsRegardlessOfOptions()
+    {
+        FakeFileSystem fileSystem = new();
+        fileSystem.AddSubdirectory("root", "root/sub");
+        fileSystem.AddFile("root/sub", "a.cpp", attributes: FileAttributes.ReadOnly);
+        FileScanner scanner = new(fileSystem, new FakeLogger());
+
+        List<FileScanResult> results = scanner.Scan("root");
+
+        FileScanResult result = Assert.Single(results);
+        Assert.Equal(".cpp", result.Extension);
+        Assert.Equal(FileAttributes.ReadOnly, result.Attributes);
+        Assert.True(result.IsReadOnly);
+        Assert.Equal("root/sub", result.DirectoryName);
+    }
+
+    [Fact]
+    public void Scan_DefaultOptions_HashAndCategoryStayNull()
+    {
+        FakeFileSystem fileSystem = new();
+        fileSystem.AddFile("root", "a.cpp", content: Encoding.UTF8.GetBytes("int main() {}"));
+        FileScanner scanner = new(fileSystem, new FakeLogger());
+
+        // No ScanOptions passed - should default to IncludeHash/IncludeCategory both false.
+        List<FileScanResult> results = scanner.Scan("root");
+
+        FileScanResult result = Assert.Single(results);
+        Assert.Null(result.FileHash);
+        Assert.Null(result.Category);
+    }
+
+    [Fact]
+    public void Scan_OptionsBothFalse_HashAndCategoryStayNull()
+    {
+        FakeFileSystem fileSystem = new();
+        fileSystem.AddFile("root", "a.cpp", content: Encoding.UTF8.GetBytes("int main() {}"));
+        FileScanner scanner = new(fileSystem, new FakeLogger());
+
+        List<FileScanResult> results = scanner.Scan("root", new ScanOptions(IncludeHash: false, IncludeCategory: false));
+
+        FileScanResult result = Assert.Single(results);
+        Assert.Null(result.FileHash);
+        Assert.Null(result.Category);
+    }
+
+    [Fact]
+    public void Scan_HashAndCategoryEnabled_PopulatesBothFieldsCorrectly()
+    {
+        FakeFileSystem fileSystem = new();
+        byte[] content = Encoding.UTF8.GetBytes("int main() {}");
+        fileSystem.AddFile("root", "a.cpp", content: content);
+        FileScanner scanner = new(fileSystem, new FakeLogger());
+
+        List<FileScanResult> results = scanner.Scan("root", new ScanOptions(IncludeHash: true, IncludeCategory: true));
+
+        FileScanResult result = Assert.Single(results);
+        Assert.Equal(new FileHasher(fileSystem).ComputeSha256Hex("root/a.cpp"), result.FileHash);
+        Assert.Equal("Code", result.Category);
+    }
+
+    [Fact]
+    public void Scan_OnlyIncludeHashEnabled_LeavesCategoryNull()
+    {
+        FakeFileSystem fileSystem = new();
+        fileSystem.AddFile("root", "a.cpp", content: Encoding.UTF8.GetBytes("int main() {}"));
+        FileScanner scanner = new(fileSystem, new FakeLogger());
+
+        List<FileScanResult> results = scanner.Scan("root", new ScanOptions(IncludeHash: true, IncludeCategory: false));
+
+        FileScanResult result = Assert.Single(results);
+        Assert.NotNull(result.FileHash);
+        Assert.Null(result.Category);
+    }
+
+    [Fact]
+    public void Scan_OnlyIncludeCategoryEnabled_LeavesHashNull()
+    {
+        FakeFileSystem fileSystem = new();
+        fileSystem.AddFile("root", "a.cpp", content: Encoding.UTF8.GetBytes("int main() {}"));
+        FileScanner scanner = new(fileSystem, new FakeLogger());
+
+        List<FileScanResult> results = scanner.Scan("root", new ScanOptions(IncludeHash: false, IncludeCategory: true));
+
+        FileScanResult result = Assert.Single(results);
+        Assert.Null(result.FileHash);
+        Assert.Equal("Code", result.Category);
     }
 }

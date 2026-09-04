@@ -22,6 +22,9 @@ public sealed class FileSystem : IFileSystem
             fileInfo.Length,
             fileInfo.CreationTime,
             fileInfo.LastWriteTime,
-            fileInfo.LastAccessTime);
+            fileInfo.LastAccessTime,
+            fileInfo.Attributes);
     }
+
+    public Stream OpenRead(string filePath) => File.OpenRead(filePath);
 }

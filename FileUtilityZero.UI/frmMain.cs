@@ -140,11 +140,27 @@ namespace FileUtilityZero
             DateTime currentDateTime = DateTime.Now;
             using StreamWriter streamWriter = new(_outputDirectory + @"\files_auto_" + currentDateTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv", true);
 
-            txtOutput.Text = "Scanning files in the Working Path into a data table. This will take some time if there is a large number of files to be scanned. Please be patient.";
+            // File hashing reads the full contents of every file, so a scan
+            // with it enabled is meaningfully slower than a metadata-only
+            // scan on a large tree. The animated "Status: Scanning files..."
+            // label (see StatusTick) is left alone since it's already
+            // ticking for the whole scan duration either way and has no
+            // room to say more, but the one-time working message the user
+            // sees when a scan starts is a good place to set the
+            // expectation up front.
+            string workingMessage = "Scanning files in the Working Path into a data table. This will take some time if there is a large number of files to be scanned. Please be patient.";
+            if (chkIncludeHash.Checked)
+            {
+                workingMessage += " File hashing is enabled, which reads the full contents of every file and will make this noticeably slower.";
+            }
+
+            txtOutput.Text = workingMessage;
             lblStatus.Text = "Status: Working...";
 
+            ScanOptions scanOptions = new(IncludeHash: chkIncludeHash.Checked, IncludeCategory: chkIncludeCategory.Checked);
+
             // Get all files last access info
-            _scanResults = _scanner.Scan(WorkingPath);
+            _scanResults = _scanner.Scan(WorkingPath, scanOptions);
             lblFileTotal.Text = "Total number of files: " + _scanResults.Count.ToString();
 
             streamWriter.WriteLine(_csvExporter.BuildHeaderLine());
