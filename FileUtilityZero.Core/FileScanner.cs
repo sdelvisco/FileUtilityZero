@@ -43,7 +43,11 @@ public sealed class FileScanner
                     metadata.Length,
                     metadata.CreationTime,
                     metadata.LastWriteTime,
-                    metadata.LastAccessTime));
+                    metadata.LastAccessTime,
+                    Extension: Path.GetExtension(metadata.FullPath),
+                    Attributes: metadata.Attributes,
+                    IsReadOnly: metadata.Attributes.HasFlag(FileAttributes.ReadOnly),
+                    DirectoryName: Path.GetDirectoryName(metadata.FullPath) ?? string.Empty));
             }
 
             foreach (string subDirPath in _fileSystem.EnumerateDirectories(directoryPath))
