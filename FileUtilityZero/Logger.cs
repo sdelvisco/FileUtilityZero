@@ -3,7 +3,9 @@ using System.IO;
 
 public class Logger
 {
-    private static string logFilePath;
+    // Defaults to the app's log path so Log() works even when nothing ever
+    // constructs a Logger instance to set this via the constructor below.
+    private static string logFilePath = FileUtilityZero.FrmMain.LogDirectory;
 
     public Logger(string FilePath)
     {
