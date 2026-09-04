@@ -10,6 +10,7 @@ public sealed class FakeFileSystem : IFileSystem
     private readonly Dictionary<string, List<string>> _filesByDirectory = new();
     private readonly Dictionary<string, List<string>> _subdirectoriesByDirectory = new();
     private readonly Dictionary<string, FileMetadata> _metadataByPath = new();
+    private readonly Dictionary<string, byte[]> _contentByPath = new();
     private readonly Dictionary<string, Exception> _enumerateFilesExceptions = new();
     private readonly List<string> _createdDirectories = new();
 
@@ -37,7 +38,9 @@ public sealed class FakeFileSystem : IFileSystem
         long length = 0,
         DateTime? creationTime = null,
         DateTime? lastWriteTime = null,
-        DateTime? lastAccessTime = null)
+        DateTime? lastAccessTime = null,
+        FileAttributes attributes = default,
+        byte[]? content = null)
     {
         AddDirectory(directoryPath);
         string fullPath = directoryPath.TrimEnd('/', '\\') + "/" + fileName;
@@ -50,7 +53,9 @@ public sealed class FakeFileSystem : IFileSystem
             length,
             creationTime ?? time,
             lastWriteTime ?? time,
-            lastAccessTime ?? time);
+            lastAccessTime ?? time,
+            attributes);
+        _contentByPath[fullPath] = content ?? Array.Empty<byte>();
 
         return fullPath;
     }
@@ -82,4 +87,7 @@ public sealed class FakeFileSystem : IFileSystem
         _subdirectoriesByDirectory.TryGetValue(directoryPath, out List<string>? dirs) ? dirs : Enumerable.Empty<string>();
 
     public FileMetadata GetFileMetadata(string filePath) => _metadataByPath[filePath];
+
+    public Stream OpenRead(string filePath) =>
+        new MemoryStream(_contentByPath.TryGetValue(filePath, out byte[]? content) ? content : Array.Empty<byte>(), writable: false);
 }

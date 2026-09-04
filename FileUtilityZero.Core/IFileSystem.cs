@@ -13,4 +13,9 @@ public interface IFileSystem
     IEnumerable<string> EnumerateDirectories(string directoryPath);
 
     FileMetadata GetFileMetadata(string filePath);
+
+    // Opens a file's full contents for reading. Added for FileHasher, so
+    // hashing goes through this abstraction instead of touching System.IO
+    // directly - the caller is responsible for disposing the returned stream.
+    Stream OpenRead(string filePath);
 }
