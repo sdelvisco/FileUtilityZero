@@ -7,9 +7,15 @@ namespace FileUtilityZero.Core;
 // on FileScanResult instead of a DataTable.
 public sealed class CsvExporter
 {
+    // All twelve columns are always present in the header and every row,
+    // even for scans run without IncludeHash/IncludeCategory - File Hash and
+    // Category are simply left as blank cells for those rows (see BuildLine
+    // below), so every export file has the same shape regardless of which
+    // ScanOptions were used to produce it.
     private static readonly string[] Headers =
     {
-        "File Name", "File Path", "File Size", "Creation Time", "Last Write Time", "Last Access Time"
+        "File Name", "File Path", "File Size", "Creation Time", "Last Write Time", "Last Access Time",
+        "Extension", "Attributes", "Is Read Only", "Directory Name", "File Hash", "Category"
     };
 
     // Quotes a single CSV field per RFC 4180 (doubling any embedded quotes) and,
@@ -50,7 +56,17 @@ public sealed class CsvExporter
         result.FileSize.ToString(),
         result.CreationTime.ToString(),
         result.LastWriteTime.ToString(),
-        result.LastAccessTime.ToString());
+        result.LastAccessTime.ToString(),
+        result.Extension,
+        result.Attributes.ToString(),
+        result.IsReadOnly.ToString(),
+        result.DirectoryName,
+        // FileHash/Category are null when the scan didn't opt into them.
+        // BuildLine takes string?[] and EscapeField treats null as
+        // string.Empty, so these naturally render as a blank ("") cell
+        // rather than being omitted.
+        result.FileHash,
+        result.Category);
 
     public void Export(IEnumerable<FileScanResult> results, string filePath)
     {

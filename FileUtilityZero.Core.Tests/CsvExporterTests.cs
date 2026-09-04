@@ -75,12 +75,13 @@ public class CsvExporterTests
     }
 
     [Fact]
-    public void BuildHeaderLine_ReturnsExpectedSixColumns()
+    public void BuildHeaderLine_ReturnsExpectedTwelveColumns()
     {
         string actual = _exporter.BuildHeaderLine();
 
         Assert.Equal(
-            "\"File Name\",\"File Path\",\"File Size\",\"Creation Time\",\"Last Write Time\",\"Last Access Time\"",
+            "\"File Name\",\"File Path\",\"File Size\",\"Creation Time\",\"Last Write Time\",\"Last Access Time\"," +
+            "\"Extension\",\"Attributes\",\"Is Read Only\",\"Directory Name\",\"File Hash\",\"Category\"",
             actual);
     }
 
