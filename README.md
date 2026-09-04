@@ -3,7 +3,7 @@
 Utility application to scan a path and all subfolders and get FileInfo data for all files.
 
 Usage:
-1. Set the working directory. Either type in the path to the folder you wish to scan or click the "Browse" button and select the folder you wish to scan.
-2. Click the "Run" button. The app will gather information from all files in all folders and subfolders in the path selected. The status windows will populate while the scan is running. The top window will show the list of files and all file information gathered under them.
-3. Once the scan is complete, click the "Export csv" button to export the data collected to a .csv file that will be saved as "files.csv" in the application directory (C:\File Utility Zero) WARNING: None of the data from the file scan is saved anywhere until this button is clicked. 
-4. To view the data from the file scan in a data table format, click the "View Data" button.
+1. Set the working directory. Either type in the path to the folder you wish to scan or click the "Browse" button and select the folder you wish to scan. Local drives and mapped network drives are supported; UNC network paths (e.g. `\\server\share`) are not.
+2. Click the "Run" button. The app will gather information from all files in all folders and subfolders in the path selected. The status windows will populate while the scan is running. As it runs, the results are also written automatically to a timestamped CSV file named `files_auto_<date>-<time>.csv` in `C:\File Utility Zero`.
+3. Once the scan is complete, click the "Export csv" button to export the same collected data to a separate timestamped CSV file named `files_export_<date>_<time>.csv`, also saved in `C:\File Utility Zero`.
+4. Click "Exit" to close the application.

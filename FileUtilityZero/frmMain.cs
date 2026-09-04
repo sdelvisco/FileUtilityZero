@@ -98,10 +98,39 @@ namespace FileUtilityZero
                 return;
             }
 
+            // Reject UNC paths (\\host\share): scanning one causes Windows to attempt
+            // SMB authentication against that host automatically, which a rogue SMB
+            // listener could capture. Local drives and mapped drive letters are unaffected.
+            if (WorkingPath.TrimStart().StartsWith(@"\\", StringComparison.Ordinal))
+            {
+                MessageBox.Show("Network (UNC) paths are not supported, since scanning one can trigger an automatic network sign-in attempt against the remote host. Please select a local or mapped drive path instead.", "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             btnRun.Enabled = false;
 
+            // Reset the per-scan file count so it doesn't carry over from a previous run.
+            FileCount = 0;
+            lblFileCount.Text = "Number of files scanned: 0";
+
+            // Ensure the output directory exists before attempting to create the CSV file in it.
+            if (!Directory.Exists(FUZDirectory))
+            {
+                try
+                {
+                    Directory.CreateDirectory(FUZDirectory);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Unable to create output directory '{FUZDirectory}': {ex.Message}");
+                    MessageBox.Show($"Could not create the output directory '{FUZDirectory}'.\n\n{ex.Message}", "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    btnRun.Enabled = true;
+                    return;
+                }
+            }
+
             DateTime currentDateTime = DateTime.Now;
-            StreamWriter streamWriter = new(FUZDirectory + @"\files_auto_" + currentDateTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv", true);
+            using StreamWriter streamWriter = new(FUZDirectory + @"\files_auto_" + currentDateTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv", true);
 
             txtOutput.Text = "Scanning files in the Working Path into a data table. This will take some time if there is a large number of files to be scanned. Please be patient.";
             lblStatus.Text = "Status: Working...";
@@ -110,7 +139,7 @@ namespace FileUtilityZero
             int result = FileAccess.GetFiles(WorkingPath);
             lblFileTotal.Text = "Total number of files: " + result.ToString();
 
-            string line = "File Name, File Path, File Size, Creation Time, Last Write Time, Last Access Time";
+            string line = FileAccess.BuildCsvLine("File Name", "File Path", "File Size", "Creation Time", "Last Write Time", "Last Access Time");
             streamWriter.WriteLine(line);
             streamWriter.Flush();
 
@@ -139,10 +168,9 @@ namespace FileUtilityZero
                     txtOutput.Text = (currentFileInfo);
                     
                     // Append the file info to the auto generated CSV file
-                    string thisInfo = ($"{file_Info.FileName}, {file_Info.FilePath}, {file_Info.FileSize}, {file_Info.CreationTime}, {file_Info.LastWriteTime}, {file_Info.LastAccessTime}");
+                    string thisInfo = FileAccess.BuildCsvLine(file_Info.FileName, file_Info.FilePath, file_Info.FileSize, file_Info.CreationTime, file_Info.LastWriteTime, file_Info.LastAccessTime);
                     streamWriter.WriteLine(thisInfo);
                     streamWriter.Flush();
-                    streamWriter.Close();
 
                     StatusTick();
                 }

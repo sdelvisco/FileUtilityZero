@@ -80,30 +80,56 @@ namespace FileUtilityZero
             StringBuilder csvData = new();
 
             // Add the headers
+            string[] headers = new string[dataTable.Columns.Count];
             for (int i = 0; i < dataTable.Columns.Count; i++)
             {
-                csvData.Append(dataTable.Columns[i].ColumnName);
-                if (i < dataTable.Columns.Count - 1)
-                    csvData.Append(",");
+                headers[i] = dataTable.Columns[i].ColumnName;
             }
-            csvData.AppendLine();
+            csvData.AppendLine(BuildCsvLine(headers));
 
             // Add the data
             foreach (DataRow row in dataTable.Rows)
             {
+                string[] fields = new string[dataTable.Columns.Count];
                 for (int i = 0; i < dataTable.Columns.Count; i++)
                 {
-                    // Handle commas in data
-                    string data = row[i].ToString().Replace(",", ";");
-                    csvData.Append(data);
-                    if (i < dataTable.Columns.Count - 1)
-                        csvData.Append(",");
+                    fields[i] = row[i].ToString();
                 }
-                csvData.AppendLine();
+                csvData.AppendLine(BuildCsvLine(fields));
             }
 
             // Write to file
             File.WriteAllText(filePath, csvData.ToString());
+        }
+
+        // Quotes a single CSV field per RFC 4180 (doubling any embedded quotes) and,
+        // if the value starts with a character a spreadsheet app would interpret as
+        // the start of a formula (=, +, -, @), prefixes it with an apostrophe so it
+        // is opened as literal text instead of being evaluated (CSV/formula injection).
+        public static string EscapeCsvField(string? value)
+        {
+            value ??= string.Empty;
+
+            if (value.Length > 0 && (value[0] == '=' || value[0] == '+' || value[0] == '-' || value[0] == '@'))
+            {
+                value = "'" + value;
+            }
+
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        }
+
+        // Builds one CSV line from a set of raw field values, escaping each field.
+        public static string BuildCsvLine(params string?[] fields)
+        {
+            StringBuilder line = new();
+            for (int i = 0; i < fields.Length; i++)
+            {
+                line.Append(EscapeCsvField(fields[i]));
+                if (i < fields.Length - 1)
+                    line.Append(",");
+            }
+
+            return line.ToString();
         }
     }
 
