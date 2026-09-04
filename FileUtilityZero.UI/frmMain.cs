@@ -1,16 +1,18 @@
-using ClosedXML.Excel;
-using System.Data;
-using System.Runtime.CompilerServices;
-using System.Threading;
+using FileUtilityZero.Core;
 
 namespace FileUtilityZero
 {
     public partial class FrmMain : Form
     {
-        // Set the log file path
-        public static string LogDirectory = @"C:\File Utility Zero\log.txt";
+        // Output/log locations - same literal values as the old static
+        // FUZDirectory/LogDirectory fields, just instance-scoped now.
+        private readonly string _outputDirectory = @"C:\File Utility Zero";
+        private readonly string _logFilePath = @"C:\File Utility Zero\log.txt";
 
-        public static string FUZDirectory = @"C:\File Utility Zero";
+        private readonly ILogger _logger;
+        private readonly IFileSystem _fileSystem;
+        private readonly FileScanner _scanner;
+        private readonly CsvExporter _csvExporter;
 
         // Set the working path
         private string WorkingPath = string.Empty;
@@ -18,48 +20,54 @@ namespace FileUtilityZero
         // Set the timer count (number of seconds the scan has been running)
         private int timerCount = 0;
 
-        public static int tick = 0;
+        private int _tick = 0;
 
-        private FileAccess FileInfo = new();
+        private int _fileCount = 0;
 
-        public static int FileCount = 0;
+        // Results of the most recent scan, used by the Export csv button.
+        private List<FileScanResult> _scanResults = new();
 
         public FrmMain()
         {
             InitializeComponent();
+
+            _logger = new FileLogger(_logFilePath);
+            _fileSystem = new FileSystem();
+            _scanner = new FileScanner(_fileSystem, _logger);
+            _csvExporter = new CsvExporter();
         }
 
-        public static void StatusTick()
+        private void StatusTick()
         {
-            switch (tick)
+            switch (_tick)
             {
                 case 0:
                     lblStatus.Text = "Status: Scanning files";
-                    tick++;
+                    _tick++;
                     break;
                 case 1:
                     lblStatus.Text = "Status: Scanning files.";
-                    tick++;
+                    _tick++;
                     break;
                 case 2:
                     lblStatus.Text = "Status: Scanning files..";
-                    tick++;
+                    _tick++;
                     break;
                 case 3:
                     lblStatus.Text = "Status: Scanning files...";
-                    tick++;
+                    _tick++;
                     break;
                 case 4:
                     lblStatus.Text = "Status: Scanning files....";
-                    tick++;
+                    _tick++;
                     break;
                 case 5:
                     lblStatus.Text = "Status: Scanning files.....";
-                    tick = 0;
+                    _tick = 0;
                     break;
                 default:
                     lblStatus.Text = "Status: Scanning files";
-                    tick = 0;
+                    _tick = 0;
                     break;
             }
 
@@ -101,7 +109,7 @@ namespace FileUtilityZero
             // Reject UNC paths (\\host\share): scanning one causes Windows to attempt
             // SMB authentication against that host automatically, which a rogue SMB
             // listener could capture. Local drives and mapped drive letters are unaffected.
-            if (WorkingPath.TrimStart().StartsWith(@"\\", StringComparison.Ordinal))
+            if (WorkingPathValidator.IsUncPath(WorkingPath))
             {
                 MessageBox.Show("Network (UNC) paths are not supported, since scanning one can trigger an automatic network sign-in attempt against the remote host. Please select a local or mapped drive path instead.", "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -110,66 +118,54 @@ namespace FileUtilityZero
             btnRun.Enabled = false;
 
             // Reset the per-scan file count so it doesn't carry over from a previous run.
-            FileCount = 0;
+            _fileCount = 0;
             lblFileCount.Text = "Number of files scanned: 0";
 
             // Ensure the output directory exists before attempting to create the CSV file in it.
-            if (!Directory.Exists(FUZDirectory))
+            if (!_fileSystem.DirectoryExists(_outputDirectory))
             {
                 try
                 {
-                    Directory.CreateDirectory(FUZDirectory);
+                    _fileSystem.CreateDirectory(_outputDirectory);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log($"Unable to create output directory '{FUZDirectory}': {ex.Message}");
-                    MessageBox.Show($"Could not create the output directory '{FUZDirectory}'.\n\n{ex.Message}", "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    _logger.Log($"Unable to create output directory '{_outputDirectory}': {ex.Message}");
+                    MessageBox.Show($"Could not create the output directory '{_outputDirectory}'.\n\n{ex.Message}", "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     btnRun.Enabled = true;
                     return;
                 }
             }
 
             DateTime currentDateTime = DateTime.Now;
-            using StreamWriter streamWriter = new(FUZDirectory + @"\files_auto_" + currentDateTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv", true);
+            using StreamWriter streamWriter = new(_outputDirectory + @"\files_auto_" + currentDateTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv", true);
 
             txtOutput.Text = "Scanning files in the Working Path into a data table. This will take some time if there is a large number of files to be scanned. Please be patient.";
             lblStatus.Text = "Status: Working...";
 
             // Get all files last access info
-            int result = FileAccess.GetFiles(WorkingPath);
-            lblFileTotal.Text = "Total number of files: " + result.ToString();
+            _scanResults = _scanner.Scan(WorkingPath);
+            lblFileTotal.Text = "Total number of files: " + _scanResults.Count.ToString();
 
-            string line = FileAccess.BuildCsvLine("File Name", "File Path", "File Size", "Creation Time", "Last Write Time", "Last Access Time");
-            streamWriter.WriteLine(line);
+            streamWriter.WriteLine(_csvExporter.BuildHeaderLine());
             streamWriter.Flush();
 
             // Display the file access info
-            if (result > 0)
+            if (_scanResults.Count > 0)
             {
-                foreach (DataRow row in FileAccess.filesDT.Rows)
+                foreach (FileScanResult result in _scanResults)
                 {
-                    FileAccessInfo file_Info = new()
-                    {
-                        FileName = row[0].ToString(),
-                        LastAccessTime = row[1].ToString(),
-                        FilePath = row[2].ToString(),
-                        FileSize = row[3].ToString(),
-                        CreationTime = row[4].ToString(),
-                        LastWriteTime = row[5].ToString()
-                    };
+                    string currentFileInfo = ($"File Name: {result.FileName}, File Path: {result.FilePath}, " +
+                        $"File Size: {result.FileSize}, Creation Time: {result.CreationTime}, " +
+                        $"Last Write Time: {result.LastWriteTime}, Last Access Time: {result.LastAccessTime}");
 
-                    string currentFileInfo = ($"File Name: {file_Info.FileName}, File Path: {file_Info.FilePath}, " +
-                        $"File Size: {file_Info.FileSize}, Creation Time: {file_Info.CreationTime}, " +
-                        $"Last Write Time: {file_Info.LastWriteTime}, Last Access Time: {file_Info.LastAccessTime}");
-
-                    FileCount++;
-                    lblFileCount.Text = "Number of files scanned: " + FileCount.ToString();
+                    _fileCount++;
+                    lblFileCount.Text = "Number of files scanned: " + _fileCount.ToString();
 
                     txtOutput.Text = (currentFileInfo);
-                    
+
                     // Append the file info to the auto generated CSV file
-                    string thisInfo = FileAccess.BuildCsvLine(file_Info.FileName, file_Info.FilePath, file_Info.FileSize, file_Info.CreationTime, file_Info.LastWriteTime, file_Info.LastAccessTime);
-                    streamWriter.WriteLine(thisInfo);
+                    streamWriter.WriteLine(_csvExporter.BuildLine(result));
                     streamWriter.Flush();
 
                     StatusTick();
@@ -182,7 +178,7 @@ namespace FileUtilityZero
             else
             {
                 txtOutput.Text = "No files found in the Working Path.";
-                Logger.Log("No files found in the Working Path.");
+                _logger.Log("No files found in the Working Path.");
                 lblStatus.Text = "Status: idle";
             }
         }
@@ -198,17 +194,17 @@ namespace FileUtilityZero
             //
             // Get current date and time
             DateTime currentDateTime = DateTime.Now;
-            string CSVFilePath = FUZDirectory + @"\files_export_" + currentDateTime.ToString("yyyy-MM-dd_HH-mm-ss") + ".csv";
+            string CSVFilePath = _outputDirectory + @"\files_export_" + currentDateTime.ToString("yyyy-MM-dd_HH-mm-ss") + ".csv";
 
             try
             {
-                FileAccess.ExportDataTableToCSV(FileAccess.filesDT, CSVFilePath);
+                _csvExporter.Export(_scanResults, CSVFilePath);
                 btnExport.Enabled = false;
                 MessageBox.Show("The data has been exported to " + CSVFilePath, "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                Logger.Log($"An error occurred while exporting the data to CSV: {ex.Message}");
+                _logger.Log($"An error occurred while exporting the data to CSV: {ex.Message}");
             }
         }
     }

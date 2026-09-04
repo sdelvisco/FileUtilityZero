@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Keep the compiled output name and root namespace unchanged even though
+         the project file/folder is now named FileUtilityZero.UI, so the shipped
+         .exe name and every existing "namespace FileUtilityZero" declaration
+         are unaffected by this project's rename. -->
+    <AssemblyName>FileUtilityZero</AssemblyName>
+    <RootNamespace>FileUtilityZero</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="FUZDataSet.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="FUZDataSet.xsc" />
+    <None Remove="FUZDataSet.xsd" />
+    <None Remove="FUZDataSet.xss" />
+    <None Remove="FUZDB.mdf" />
+    <None Remove="FUZDB_log.ldf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
+    <PackageReference Include="ExcelDataReader" Version="3.9.0" />
+    <PackageReference Include="ExcelDataReader.DataSet" Version="3.9.0" />
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FileUtilityZero.Core\FileUtilityZero.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -169,6 +169,6 @@ namespace FileUtilityZero
         private Label lblFileCount;
         private Label lblFileTotal;
         private Label txtOutput;
-        public static Label lblStatus;
+        private Label lblStatus;
     }
 }
