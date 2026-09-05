@@ -8,8 +8,9 @@ results to CSV.
 
 - Recursive scan of a folder tree, collecting name, path, size, and
   timestamp data for every file
-- Live progress display while a scan is running
-- Automatic CSV export during the scan, plus a separate on-demand export
+- Results shown in a sortable, searchable grid that populates as the scan
+  runs, plus an indeterminate progress bar while it's in progress
+- On-demand CSV export of the current results
 - Optional SHA-256 file hashing (off by default — increases scan time)
 - Optional file categorization by type (e.g. Code, Image, Document — off by
   default)
@@ -47,14 +48,17 @@ directly.
    Both are off by default, since they slow down scans of large directory
    trees.
 3. Click **Run**. The app will gather information from all files in all
-   folders and subfolders in the path selected. The status window will
-   populate while the scan is running. As it runs, the results are also
-   written automatically to a timestamped CSV file named
-   `files_auto_<date>-<time>.csv` in `C:\File Utility Zero`.
-4. Once the scan is complete, click **Export csv** to export the same
-   collected data to a separate timestamped CSV file named
-   `files_export_<date>_<time>.csv`, also saved in `C:\File Utility Zero`.
-5. Click **Exit** to close the application.
+   folders and subfolders in the path selected. A progress bar is shown
+   while the scan runs (in the background, so the app stays responsive),
+   and results are added to the grid as they're found.
+4. Once the scan is complete, optionally type into the search box above
+   the grid to filter the results (matches any column, case-insensitive),
+   or click a column header to sort by that column - click it again to
+   reverse the sort direction.
+5. Click **Export csv** to export the full set of results (regardless of
+   any text currently in the search box) to a timestamped CSV file named
+   `files_export_<date>_<time>.csv`, saved in `C:\File Utility Zero`.
+6. Click **Exit** to close the application.
 
 ## Building a Windows Installer
 
