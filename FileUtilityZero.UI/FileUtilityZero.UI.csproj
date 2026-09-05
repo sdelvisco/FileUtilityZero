@@ -12,6 +12,11 @@
          are unaffected by this project's rename. -->
     <AssemblyName>FileUtilityZero</AssemblyName>
     <RootNamespace>FileUtilityZero</RootNamespace>
+    <!-- Single source of truth for the app's release version. The installer
+         script (installer/FileUtilityZero.iss) has its own MyAppVersion
+         placeholder that is NOT read from here automatically - keep the two
+         in sync by hand when cutting a release (see BUILDING.md). -->
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

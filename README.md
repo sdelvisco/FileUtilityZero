@@ -56,6 +56,11 @@ directly.
    `files_export_<date>_<time>.csv`, also saved in `C:\File Utility Zero`.
 5. Click **Exit** to close the application.
 
+## Building a Windows Installer
+
+For maintainers cutting a release: see [BUILDING.md](BUILDING.md) for how
+to produce a self-contained `Setup.exe` with Inno Setup.
+
 ## License
 
-This project is licensed under the [GPL-3.0 License](LICENSE).
+This project is licensed under the [GPL-3.0 License](LICENSE.txt).

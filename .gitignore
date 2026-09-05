@@ -192,6 +192,12 @@ publish/
 # in these scripts will be unencrypted
 PublishScripts/
 
+# This app has no web/Azure deploy targets, so the blanket *.pubxml ignore
+# above doesn't apply to it - this profile only sets RID/self-contained/
+# single-file flags for the installer build (see BUILDING.md) and carries
+# no secrets, so it's checked in deliberately.
+!FileUtilityZero.UI/Properties/PublishProfiles/win-x64-selfcontained.pubxml
+
 # NuGet Packages
 *.nupkg
 # NuGet Symbol Packages
@@ -361,3 +367,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Inno Setup compiler output (the built Setup.exe) - a release artifact,
+# not source; see installer/FileUtilityZero.iss and BUILDING.md.
+installer/Output/
