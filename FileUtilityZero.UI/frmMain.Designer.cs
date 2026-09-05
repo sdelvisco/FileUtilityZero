@@ -44,6 +44,7 @@ namespace FileUtilityZero
             chkIncludeCategory = new CheckBox();
             lblFilter = new Label();
             txtFilter = new TextBox();
+            progressBar = new ProgressBar();
             dgvResults = new DataGridView();
             colFileName = new DataGridViewTextBoxColumn();
             colFilePath = new DataGridViewTextBoxColumn();
@@ -63,7 +64,7 @@ namespace FileUtilityZero
             // btnBrowse
             //
             btnBrowse.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnBrowse.Location = new Point(772, 386);
+            btnBrowse.Location = new Point(772, 400);
             btnBrowse.Name = "btnBrowse";
             btnBrowse.Size = new Size(75, 23);
             btnBrowse.TabIndex = 0;
@@ -74,7 +75,7 @@ namespace FileUtilityZero
             // btnRun
             //
             btnRun.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnRun.Location = new Point(610, 415);
+            btnRun.Location = new Point(610, 429);
             btnRun.Name = "btnRun";
             btnRun.Size = new Size(75, 23);
             btnRun.TabIndex = 1;
@@ -85,7 +86,7 @@ namespace FileUtilityZero
             // btnExit
             //
             btnExit.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnExit.Location = new Point(772, 415);
+            btnExit.Location = new Point(772, 429);
             btnExit.Name = "btnExit";
             btnExit.Size = new Size(75, 23);
             btnExit.TabIndex = 2;
@@ -96,7 +97,7 @@ namespace FileUtilityZero
             // txtWorkingPath
             //
             txtWorkingPath.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            txtWorkingPath.Location = new Point(311, 386);
+            txtWorkingPath.Location = new Point(311, 400);
             txtWorkingPath.Name = "txtWorkingPath";
             txtWorkingPath.Size = new Size(455, 23);
             txtWorkingPath.TabIndex = 3;
@@ -105,7 +106,7 @@ namespace FileUtilityZero
             //
             label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             label1.AutoSize = true;
-            label1.Location = new Point(223, 390);
+            label1.Location = new Point(223, 404);
             label1.Name = "label1";
             label1.Size = new Size(82, 15);
             label1.TabIndex = 4;
@@ -116,7 +117,7 @@ namespace FileUtilityZero
             //
             lblStatus.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblStatus.AutoSize = true;
-            lblStatus.Location = new Point(18, 390);
+            lblStatus.Location = new Point(18, 404);
             lblStatus.Name = "lblStatus";
             lblStatus.Size = new Size(64, 15);
             lblStatus.TabIndex = 8;
@@ -125,7 +126,7 @@ namespace FileUtilityZero
             // btnExport
             //
             btnExport.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnExport.Location = new Point(691, 415);
+            btnExport.Location = new Point(691, 429);
             btnExport.Name = "btnExport";
             btnExport.Size = new Size(75, 23);
             btnExport.TabIndex = 9;
@@ -137,7 +138,7 @@ namespace FileUtilityZero
             //
             lblFileCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblFileCount.AutoSize = true;
-            lblFileCount.Location = new Point(18, 359);
+            lblFileCount.Location = new Point(18, 353);
             lblFileCount.Name = "lblFileCount";
             lblFileCount.Size = new Size(148, 15);
             lblFileCount.TabIndex = 11;
@@ -147,7 +148,7 @@ namespace FileUtilityZero
             //
             lblFileTotal.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblFileTotal.AutoSize = true;
-            lblFileTotal.Location = new Point(311, 359);
+            lblFileTotal.Location = new Point(311, 353);
             lblFileTotal.Name = "lblFileTotal";
             lblFileTotal.Size = new Size(167, 15);
             lblFileTotal.TabIndex = 12;
@@ -158,7 +159,7 @@ namespace FileUtilityZero
             chkIncludeHash.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             chkIncludeHash.AutoSize = true;
             chkIncludeHash.Checked = false;
-            chkIncludeHash.Location = new Point(18, 444);
+            chkIncludeHash.Location = new Point(18, 458);
             chkIncludeHash.Name = "chkIncludeHash";
             chkIncludeHash.Size = new Size(180, 19);
             chkIncludeHash.TabIndex = 14;
@@ -170,7 +171,7 @@ namespace FileUtilityZero
             chkIncludeCategory.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             chkIncludeCategory.AutoSize = true;
             chkIncludeCategory.Checked = false;
-            chkIncludeCategory.Location = new Point(250, 444);
+            chkIncludeCategory.Location = new Point(250, 458);
             chkIncludeCategory.Name = "chkIncludeCategory";
             chkIncludeCategory.Size = new Size(140, 19);
             chkIncludeCategory.TabIndex = 15;
@@ -195,6 +196,16 @@ namespace FileUtilityZero
             txtFilter.Size = new Size(756, 23);
             txtFilter.TabIndex = 17;
             txtFilter.TextChanged += TxtFilter_TextChanged;
+            //
+            // progressBar
+            //
+            progressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            progressBar.Location = new Point(18, 374);
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(823, 14);
+            progressBar.Style = ProgressBarStyle.Marquee;
+            progressBar.TabIndex = 19;
+            progressBar.Visible = false;
             //
             // dgvResults
             //
@@ -328,8 +339,9 @@ namespace FileUtilityZero
             //
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(859, 480);
+            ClientSize = new Size(859, 495);
             Controls.Add(dgvResults);
+            Controls.Add(progressBar);
             Controls.Add(txtFilter);
             Controls.Add(lblFilter);
             Controls.Add(chkIncludeCategory);
@@ -343,7 +355,7 @@ namespace FileUtilityZero
             Controls.Add(btnExit);
             Controls.Add(btnRun);
             Controls.Add(btnBrowse);
-            MinimumSize = new Size(700, 400);
+            MinimumSize = new Size(700, 420);
             Name = "FrmMain";
             Text = "File Utility Zero - Sal Delvisco";
             Load += FrmMain_Load;
@@ -367,6 +379,7 @@ namespace FileUtilityZero
         private CheckBox chkIncludeCategory;
         private Label lblFilter;
         private TextBox txtFilter;
+        private ProgressBar progressBar;
         private DataGridView dgvResults;
         private DataGridViewTextBoxColumn colFileName;
         private DataGridViewTextBoxColumn colFilePath;
