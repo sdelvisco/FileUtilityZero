@@ -121,7 +121,7 @@ namespace FileUtilityZero
             _fileCount = 0;
             lblFileCount.Text = "Number of files scanned: 0";
 
-            // Ensure the output directory exists before attempting to create the CSV file in it.
+            // Ensure the output directory exists before Export csv needs to write into it later.
             if (!_fileSystem.DirectoryExists(_outputDirectory))
             {
                 try
@@ -136,9 +136,6 @@ namespace FileUtilityZero
                     return;
                 }
             }
-
-            DateTime currentDateTime = DateTime.Now;
-            using StreamWriter streamWriter = new(_outputDirectory + @"\files_auto_" + currentDateTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv", true);
 
             // File hashing reads the full contents of every file, so a scan
             // with it enabled is meaningfully slower than a metadata-only
@@ -163,9 +160,6 @@ namespace FileUtilityZero
             _scanResults = _scanner.Scan(WorkingPath, scanOptions);
             lblFileTotal.Text = "Total number of files: " + _scanResults.Count.ToString();
 
-            streamWriter.WriteLine(_csvExporter.BuildHeaderLine());
-            streamWriter.Flush();
-
             // Display the file access info
             if (_scanResults.Count > 0)
             {
@@ -179,10 +173,6 @@ namespace FileUtilityZero
                     lblFileCount.Text = "Number of files scanned: " + _fileCount.ToString();
 
                     txtOutput.Text = (currentFileInfo);
-
-                    // Append the file info to the auto generated CSV file
-                    streamWriter.WriteLine(_csvExporter.BuildLine(result));
-                    streamWriter.Flush();
 
                     StatusTick();
                 }
