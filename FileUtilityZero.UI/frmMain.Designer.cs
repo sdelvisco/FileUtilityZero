@@ -58,45 +58,67 @@ namespace FileUtilityZero
             colDirectoryName = new DataGridViewTextBoxColumn();
             colFileHash = new DataGridViewTextBoxColumn();
             colCategory = new DataGridViewTextBoxColumn();
+            DataGridViewCellStyle columnHeaderStyle = new DataGridViewCellStyle();
+            DataGridViewCellStyle defaultRowStyle = new DataGridViewCellStyle();
+            DataGridViewCellStyle alternatingRowStyle = new DataGridViewCellStyle();
             ((System.ComponentModel.ISupportInitialize)dgvResults).BeginInit();
             SuspendLayout();
             //
             // btnBrowse
             //
             btnBrowse.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnBrowse.BackColor = Color.White;
+            btnBrowse.Cursor = Cursors.Hand;
+            btnBrowse.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            btnBrowse.FlatStyle = FlatStyle.Flat;
+            btnBrowse.ForeColor = Color.FromArgb(32, 32, 32);
             btnBrowse.Location = new Point(772, 400);
             btnBrowse.Name = "btnBrowse";
             btnBrowse.Size = new Size(75, 23);
             btnBrowse.TabIndex = 0;
             btnBrowse.Text = "Browse";
-            btnBrowse.UseVisualStyleBackColor = true;
+            btnBrowse.UseVisualStyleBackColor = false;
             btnBrowse.Click += BtnBrowse_Click;
             //
             // btnRun
             //
             btnRun.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnRun.BackColor = Color.FromArgb(0, 120, 215);
+            btnRun.Cursor = Cursors.Hand;
+            btnRun.FlatAppearance.BorderColor = Color.FromArgb(0, 120, 215);
+            btnRun.FlatAppearance.MouseDownBackColor = Color.FromArgb(0, 90, 160);
+            btnRun.FlatAppearance.MouseOverBackColor = Color.FromArgb(16, 110, 190);
+            btnRun.FlatStyle = FlatStyle.Flat;
+            btnRun.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnRun.ForeColor = Color.White;
             btnRun.Location = new Point(610, 429);
             btnRun.Name = "btnRun";
             btnRun.Size = new Size(75, 23);
             btnRun.TabIndex = 1;
             btnRun.Text = "Run";
-            btnRun.UseVisualStyleBackColor = true;
+            btnRun.UseVisualStyleBackColor = false;
             btnRun.Click += BtnRun_Click;
             //
             // btnExit
             //
             btnExit.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnExit.BackColor = Color.White;
+            btnExit.Cursor = Cursors.Hand;
+            btnExit.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            btnExit.FlatStyle = FlatStyle.Flat;
+            btnExit.ForeColor = Color.FromArgb(32, 32, 32);
             btnExit.Location = new Point(772, 429);
             btnExit.Name = "btnExit";
             btnExit.Size = new Size(75, 23);
             btnExit.TabIndex = 2;
             btnExit.Text = "Exit";
-            btnExit.UseVisualStyleBackColor = true;
+            btnExit.UseVisualStyleBackColor = false;
             btnExit.Click += BtnExit_Click;
             //
             // txtWorkingPath
             //
             txtWorkingPath.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            txtWorkingPath.BorderStyle = BorderStyle.FixedSingle;
             txtWorkingPath.Location = new Point(311, 400);
             txtWorkingPath.Name = "txtWorkingPath";
             txtWorkingPath.Size = new Size(455, 23);
@@ -126,18 +148,24 @@ namespace FileUtilityZero
             // btnExport
             //
             btnExport.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnExport.BackColor = Color.White;
+            btnExport.Cursor = Cursors.Hand;
+            btnExport.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+            btnExport.FlatStyle = FlatStyle.Flat;
+            btnExport.ForeColor = Color.FromArgb(32, 32, 32);
             btnExport.Location = new Point(691, 429);
             btnExport.Name = "btnExport";
             btnExport.Size = new Size(75, 23);
             btnExport.TabIndex = 9;
             btnExport.Text = "Export csv";
-            btnExport.UseVisualStyleBackColor = true;
+            btnExport.UseVisualStyleBackColor = false;
             btnExport.Click += BtnExport_Click;
             //
             // lblFileCount
             //
             lblFileCount.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblFileCount.AutoSize = true;
+            lblFileCount.ForeColor = Color.FromArgb(90, 90, 90);
             lblFileCount.Location = new Point(18, 353);
             lblFileCount.Name = "lblFileCount";
             lblFileCount.Size = new Size(148, 15);
@@ -148,6 +176,7 @@ namespace FileUtilityZero
             //
             lblFileTotal.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblFileTotal.AutoSize = true;
+            lblFileTotal.ForeColor = Color.FromArgb(90, 90, 90);
             lblFileTotal.Location = new Point(311, 353);
             lblFileTotal.Name = "lblFileTotal";
             lblFileTotal.Size = new Size(167, 15);
@@ -191,6 +220,7 @@ namespace FileUtilityZero
             // txtFilter
             //
             txtFilter.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtFilter.BorderStyle = BorderStyle.FixedSingle;
             txtFilter.Location = new Point(85, 12);
             txtFilter.Name = "txtFilter";
             txtFilter.Size = new Size(756, 23);
@@ -207,20 +237,52 @@ namespace FileUtilityZero
             progressBar.TabIndex = 19;
             progressBar.Visible = false;
             //
+            // columnHeaderStyle
+            //
+            columnHeaderStyle.BackColor = Color.FromArgb(245, 245, 245);
+            columnHeaderStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            columnHeaderStyle.ForeColor = Color.FromArgb(40, 40, 40);
+            columnHeaderStyle.Padding = new Padding(6, 0, 6, 0);
+            columnHeaderStyle.SelectionBackColor = Color.FromArgb(245, 245, 245);
+            columnHeaderStyle.SelectionForeColor = Color.FromArgb(40, 40, 40);
+            //
+            // defaultRowStyle
+            //
+            defaultRowStyle.BackColor = Color.White;
+            defaultRowStyle.ForeColor = Color.FromArgb(32, 32, 32);
+            defaultRowStyle.Padding = new Padding(6, 2, 6, 2);
+            defaultRowStyle.SelectionBackColor = Color.FromArgb(0, 120, 215);
+            defaultRowStyle.SelectionForeColor = Color.White;
+            //
+            // alternatingRowStyle
+            //
+            alternatingRowStyle.BackColor = Color.FromArgb(248, 248, 248);
+            //
             // dgvResults
             //
             dgvResults.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvResults.AllowUserToAddRows = false;
             dgvResults.AllowUserToDeleteRows = false;
+            dgvResults.AlternatingRowsDefaultCellStyle = alternatingRowStyle;
             dgvResults.AutoGenerateColumns = false;
             dgvResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-            dgvResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvResults.BackgroundColor = Color.White;
+            dgvResults.BorderStyle = BorderStyle.FixedSingle;
+            dgvResults.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvResults.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dgvResults.ColumnHeadersDefaultCellStyle = columnHeaderStyle;
+            dgvResults.ColumnHeadersHeight = 32;
+            dgvResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             dgvResults.Columns.AddRange(new DataGridViewColumn[] { colFileName, colFilePath, colFileSize, colCreationTime, colLastWriteTime, colLastAccessTime, colExtension, colAttributes, colIsReadOnly, colDirectoryName, colFileHash, colCategory });
+            dgvResults.DefaultCellStyle = defaultRowStyle;
+            dgvResults.EnableHeadersVisualStyles = false;
+            dgvResults.GridColor = Color.FromArgb(230, 230, 230);
             dgvResults.Location = new Point(18, 41);
             dgvResults.MultiSelect = false;
             dgvResults.Name = "dgvResults";
             dgvResults.ReadOnly = true;
             dgvResults.RowHeadersVisible = false;
+            dgvResults.RowTemplate.Height = 24;
             dgvResults.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvResults.Size = new Size(823, 300);
             dgvResults.TabIndex = 18;
@@ -339,6 +401,7 @@ namespace FileUtilityZero
             //
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.White;
             ClientSize = new Size(859, 495);
             Controls.Add(dgvResults);
             Controls.Add(progressBar);
