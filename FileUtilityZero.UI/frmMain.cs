@@ -1,9 +1,15 @@
+using System.Reflection;
 using FileUtilityZero.Core;
 
 namespace FileUtilityZero
 {
     public partial class FrmMain : Form
     {
+        // Cached once since FileScanResult's shape never changes at runtime -
+        // used by both the free-text filter (checks every column) and the
+        // column-sort handler (looks up the clicked column's property).
+        private static readonly PropertyInfo[] ResultProperties = typeof(FileScanResult).GetProperties();
+
         // Output/log locations - same literal values as the old static
         // FUZDirectory/LogDirectory fields, just instance-scoped now.
         private readonly string _outputDirectory = @"C:\File Utility Zero";
@@ -20,12 +26,27 @@ namespace FileUtilityZero
         // Set the timer count (number of seconds the scan has been running)
         private int timerCount = 0;
 
-        private int _tick = 0;
-
         private int _fileCount = 0;
 
+        // True while a scan is running on the background thread. Guards the
+        // filter box and column-sort handlers so they don't try to
+        // re-filter/re-sort against a result set that's still being built.
+        private bool _isScanning;
+
         // Results of the most recent scan, used by the Export csv button.
+        // This is always the full, unfiltered set - dgvResults is bound to a
+        // separately-computed filtered/sorted view (see RefreshGrid), so
+        // Export csv always exports everything regardless of what the user
+        // has currently typed into the search box.
         private List<FileScanResult> _scanResults = new();
+
+        private readonly BindingSource _resultsBindingSource = new();
+
+        // Which column dgvResults is currently sorted by (a FileScanResult
+        // property name), and in which direction. Null means unsorted
+        // (results shown in scan order).
+        private string? _sortProperty;
+        private bool _sortAscending = true;
 
         public FrmMain()
         {
@@ -35,43 +56,107 @@ namespace FileUtilityZero
             _fileSystem = new FileSystem();
             _scanner = new FileScanner(_fileSystem, _logger);
             _csvExporter = new CsvExporter();
+
+            dgvResults.DataSource = _resultsBindingSource;
         }
 
-        private void StatusTick()
+        // Recomputes the grid's data source from _scanResults, applying the
+        // current search-box text and column sort. Called after a scan
+        // completes and whenever the filter text or sort column changes.
+        private void RefreshGrid()
         {
-            switch (_tick)
+            IEnumerable<FileScanResult> view = _scanResults;
+
+            string filterText = txtFilter.Text;
+            if (!string.IsNullOrWhiteSpace(filterText))
             {
-                case 0:
-                    lblStatus.Text = "Status: Scanning files";
-                    _tick++;
-                    break;
-                case 1:
-                    lblStatus.Text = "Status: Scanning files.";
-                    _tick++;
-                    break;
-                case 2:
-                    lblStatus.Text = "Status: Scanning files..";
-                    _tick++;
-                    break;
-                case 3:
-                    lblStatus.Text = "Status: Scanning files...";
-                    _tick++;
-                    break;
-                case 4:
-                    lblStatus.Text = "Status: Scanning files....";
-                    _tick++;
-                    break;
-                case 5:
-                    lblStatus.Text = "Status: Scanning files.....";
-                    _tick = 0;
-                    break;
-                default:
-                    lblStatus.Text = "Status: Scanning files";
-                    _tick = 0;
-                    break;
+                view = view.Where(result => RowMatchesFilter(result, filterText));
             }
 
-            Application.DoEvents();
+            if (_sortProperty != null)
+            {
+                PropertyInfo property = typeof(FileScanResult).GetProperty(_sortProperty)!;
+
+                // Sorting by the raw property value (rather than its string
+                // representation) is what makes File Size sort numerically
+                // and the date columns sort chronologically instead of
+                // alphabetically - eg "9" would otherwise sort after "10".
+                view = _sortAscending
+                    ? view.OrderBy(result => property.GetValue(result))
+                    : view.OrderByDescending(result => property.GetValue(result));
+            }
+
+            _resultsBindingSource.DataSource = view.ToList();
+        }
+
+        // True if any column of the result, converted to text, contains
+        // filterText (case-insensitive).
+        private static bool RowMatchesFilter(FileScanResult result, string filterText)
+        {
+            foreach (PropertyInfo property in ResultProperties)
+            {
+                string? value = property.GetValue(result)?.ToString();
+                if (value != null && value.Contains(filterText, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void TxtFilter_TextChanged(object sender, EventArgs e)
+        {
+            if (_isScanning)
+            {
+                return;
+            }
+
+            RefreshGrid();
+        }
+
+        private void DgvResults_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (_isScanning)
+            {
+                return;
+            }
+
+            DataGridViewColumn column = dgvResults.Columns[e.ColumnIndex];
+            string propertyName = column.DataPropertyName;
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                return;
+            }
+
+            if (_sortProperty == propertyName)
+            {
+                _sortAscending = !_sortAscending;
+            }
+            else
+            {
+                _sortProperty = propertyName;
+                _sortAscending = true;
+            }
+
+            foreach (DataGridViewColumn otherColumn in dgvResults.Columns)
+            {
+                otherColumn.HeaderCell.SortGlyphDirection = SortOrder.None;
+            }
+            column.HeaderCell.SortGlyphDirection = _sortAscending ? SortOrder.Ascending : SortOrder.Descending;
+
+            RefreshGrid();
+        }
+
+        // Enables/disables the controls that shouldn't be touched while a
+        // scan is in flight on the background thread.
+        private void SetControlsEnabled(bool enabled)
+        {
+            btnRun.Enabled = enabled;
+            txtWorkingPath.Enabled = enabled;
+            chkIncludeHash.Enabled = enabled;
+            chkIncludeCategory.Enabled = enabled;
+            txtFilter.Enabled = enabled;
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -95,7 +180,7 @@ namespace FileUtilityZero
             }
         }
 
-        private void BtnRun_Click(object sender, EventArgs e)
+        private async void BtnRun_Click(object sender, EventArgs e)
         {
             WorkingPath = txtWorkingPath.Text;
 
@@ -115,87 +200,97 @@ namespace FileUtilityZero
                 return;
             }
 
-            btnRun.Enabled = false;
+            _isScanning = true;
+            SetControlsEnabled(false);
 
-            // Reset the per-scan file count so it doesn't carry over from a previous run.
-            _fileCount = 0;
-            lblFileCount.Text = "Number of files scanned: 0";
-
-            // Ensure the output directory exists before attempting to create the CSV file in it.
-            if (!_fileSystem.DirectoryExists(_outputDirectory))
+            try
             {
-                try
+                // Reset the per-scan file count so it doesn't carry over from a previous run.
+                _fileCount = 0;
+                lblFileCount.Text = "Number of files scanned: 0";
+
+                // Start each new scan with a clean grid view rather than carrying
+                // over a search/sort left from a previous run's results.
+                txtFilter.Text = string.Empty;
+                _sortProperty = null;
+                foreach (DataGridViewColumn column in dgvResults.Columns)
                 {
-                    _fileSystem.CreateDirectory(_outputDirectory);
+                    column.HeaderCell.SortGlyphDirection = SortOrder.None;
                 }
-                catch (Exception ex)
+
+                // Ensure the output directory exists before Export csv needs to write into it later.
+                if (!_fileSystem.DirectoryExists(_outputDirectory))
                 {
-                    _logger.Log($"Unable to create output directory '{_outputDirectory}': {ex.Message}");
-                    MessageBox.Show($"Could not create the output directory '{_outputDirectory}'.\n\n{ex.Message}", "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    btnRun.Enabled = true;
-                    return;
+                    try
+                    {
+                        _fileSystem.CreateDirectory(_outputDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log($"Unable to create output directory '{_outputDirectory}': {ex.Message}");
+                        MessageBox.Show($"Could not create the output directory '{_outputDirectory}'.\n\n{ex.Message}", "File Utility Zero", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
-            }
 
-            DateTime currentDateTime = DateTime.Now;
-            using StreamWriter streamWriter = new(_outputDirectory + @"\files_auto_" + currentDateTime.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv", true);
+                // File hashing reads the full contents of every file, so a scan
+                // with it enabled is meaningfully slower than a metadata-only
+                // scan on a large tree - worth calling out up front since there's
+                // no percentage-based progress indicator to reveal that cost
+                // once the scan is under way.
+                lblStatus.Text = chkIncludeHash.Checked
+                    ? "Status: Working... (file hashing enabled, this will be slower)"
+                    : "Status: Working...";
+                progressBar.Visible = true;
 
-            // File hashing reads the full contents of every file, so a scan
-            // with it enabled is meaningfully slower than a metadata-only
-            // scan on a large tree. The animated "Status: Scanning files..."
-            // label (see StatusTick) is left alone since it's already
-            // ticking for the whole scan duration either way and has no
-            // room to say more, but the one-time working message the user
-            // sees when a scan starts is a good place to set the
-            // expectation up front.
-            string workingMessage = "Scanning files in the Working Path into a data table. This will take some time if there is a large number of files to be scanned. Please be patient.";
-            if (chkIncludeHash.Checked)
-            {
-                workingMessage += " File hashing is enabled, which reads the full contents of every file and will make this noticeably slower.";
-            }
+                ScanOptions scanOptions = new(IncludeHash: chkIncludeHash.Checked, IncludeCategory: chkIncludeCategory.Checked);
 
-            txtOutput.Text = workingMessage;
-            lblStatus.Text = "Status: Working...";
+                // Bind the grid to a fresh, empty list up front, then add each
+                // result to it as it's reported - this is what lets the grid
+                // populate progressively while the scan runs, rather than
+                // waiting for the whole tree to finish. BindingSource.Add
+                // raises a single-item ListChanged notification, so
+                // DataGridView adds one row at a time instead of redrawing
+                // the whole grid per file.
+                _resultsBindingSource.DataSource = new List<FileScanResult>();
 
-            ScanOptions scanOptions = new(IncludeHash: chkIncludeHash.Checked, IncludeCategory: chkIncludeCategory.Checked);
-
-            // Get all files last access info
-            _scanResults = _scanner.Scan(WorkingPath, scanOptions);
-            lblFileTotal.Text = "Total number of files: " + _scanResults.Count.ToString();
-
-            streamWriter.WriteLine(_csvExporter.BuildHeaderLine());
-            streamWriter.Flush();
-
-            // Display the file access info
-            if (_scanResults.Count > 0)
-            {
-                foreach (FileScanResult result in _scanResults)
+                IProgress<FileScanResult> progress = new Progress<FileScanResult>(result =>
                 {
-                    string currentFileInfo = ($"File Name: {result.FileName}, File Path: {result.FilePath}, " +
-                        $"File Size: {result.FileSize}, Creation Time: {result.CreationTime}, " +
-                        $"Last Write Time: {result.LastWriteTime}, Last Access Time: {result.LastAccessTime}");
-
+                    _resultsBindingSource.Add(result);
                     _fileCount++;
                     lblFileCount.Text = "Number of files scanned: " + _fileCount.ToString();
+                });
 
-                    txtOutput.Text = (currentFileInfo);
+                // Run the scan on a thread pool thread so the UI thread - and
+                // with it the marquee progress bar's animation and the
+                // progressive grid updates above - stays responsive for the
+                // full duration of a large scan.
+                _scanResults = await Task.Run(() => _scanner.Scan(WorkingPath, scanOptions, progress));
 
-                    // Append the file info to the auto generated CSV file
-                    streamWriter.WriteLine(_csvExporter.BuildLine(result));
-                    streamWriter.Flush();
+                lblFileTotal.Text = "Total number of files: " + _scanResults.Count.ToString();
 
-                    StatusTick();
+                // The progressive updates above never applied the search box
+                // or column sort (both are disabled/ignored while scanning),
+                // so reconcile the grid against the final results now that
+                // both are live again.
+                RefreshGrid();
+
+                if (_scanResults.Count > 0)
+                {
+                    btnExport.Enabled = true;
+                    lblStatus.Text = "Status: Scanning complete.";
                 }
-
-                btnExport.Enabled = true;
-                lblStatus.Text = "Status: Scanning complete.";
-                txtOutput.Text = "Scanning complete.";
+                else
+                {
+                    _logger.Log("No files found in the Working Path.");
+                    lblStatus.Text = "Status: No files found in the Working Path.";
+                }
             }
-            else
+            finally
             {
-                txtOutput.Text = "No files found in the Working Path.";
-                _logger.Log("No files found in the Working Path.");
-                lblStatus.Text = "Status: idle";
+                progressBar.Visible = false;
+                _isScanning = false;
+                SetControlsEnabled(true);
             }
         }
 

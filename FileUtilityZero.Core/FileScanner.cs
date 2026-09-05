@@ -19,14 +19,20 @@ public sealed class FileScanner
     // options defaults to a new ScanOptions() (IncludeHash/IncludeCategory
     // both false) when omitted, so existing callers keep getting the same
     // cheap, metadata-only scan they always did.
-    public List<FileScanResult> Scan(string rootDirectory, ScanOptions? options = null)
+    //
+    // progress, when supplied, is reported once per file as it's found -
+    // this lets a caller running the scan on a background thread (eg via
+    // Task.Run) stream results to a UI incrementally instead of waiting for
+    // the whole tree to finish, without this class needing to know anything
+    // about threads or synchronization contexts itself.
+    public List<FileScanResult> Scan(string rootDirectory, ScanOptions? options = null, IProgress<FileScanResult>? progress = null)
     {
         options ??= new ScanOptions();
         List<FileScanResult> results = new();
 
         try
         {
-            ScanDirectory(rootDirectory, results, options);
+            ScanDirectory(rootDirectory, results, options, progress);
         }
         catch (Exception ex)
         {
@@ -36,7 +42,7 @@ public sealed class FileScanner
         return results;
     }
 
-    private void ScanDirectory(string directoryPath, List<FileScanResult> results, ScanOptions options)
+    private void ScanDirectory(string directoryPath, List<FileScanResult> results, ScanOptions options, IProgress<FileScanResult>? progress)
     {
         try
         {
@@ -48,7 +54,7 @@ public sealed class FileScanner
                 // FileHash/Category are only computed when explicitly opted
                 // into - hashing in particular reads the entire file, so it
                 // stays skipped (null) unless IncludeHash is set.
-                results.Add(new FileScanResult(
+                FileScanResult result = new(
                     metadata.Name,
                     metadata.FullPath,
                     metadata.Length,
@@ -60,12 +66,15 @@ public sealed class FileScanner
                     IsReadOnly: metadata.Attributes.HasFlag(FileAttributes.ReadOnly),
                     DirectoryName: Path.GetDirectoryName(metadata.FullPath) ?? string.Empty,
                     FileHash: options.IncludeHash ? _fileHasher.ComputeSha256Hex(metadata.FullPath) : null,
-                    Category: options.IncludeCategory ? FileCategorizer.GetCategory(extension) : null));
+                    Category: options.IncludeCategory ? FileCategorizer.GetCategory(extension) : null);
+
+                results.Add(result);
+                progress?.Report(result);
             }
 
             foreach (string subDirPath in _fileSystem.EnumerateDirectories(directoryPath))
             {
-                ScanDirectory(subDirPath, results, options);
+                ScanDirectory(subDirPath, results, options, progress);
             }
         }
         catch (Exception ex)
